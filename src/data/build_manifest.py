@@ -62,7 +62,9 @@ def main() -> None:
     if not metadata_path.exists():
         raise FileNotFoundError(
             f"Metadata file was not found: {metadata_path}. "
-            "Run src.data.download_harmonyset first."
+            "Run `python -m src.data.download_harmonyset` from the project root first "
+            "(it creates this CSV after loading Hugging Face metadata; wait until you see "
+            "'Saved initial metadata' or downloads finishing)."
         )
 
     metadata = pd.read_csv(metadata_path)
