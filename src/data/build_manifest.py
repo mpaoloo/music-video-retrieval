@@ -11,7 +11,7 @@ from src.utils import load_config, make_dir, project_path, set_seed
 
 
 def inspect_video(video_path: str | Path) -> dict:
-    """Read basic technical information about a video file."""
+    """Читаем основную информацию о видео файле"""
     path = Path(video_path)
     if not path.exists():
         return {"is_valid": False, "duration": 0.0, "fps": 0.0, "frames": 0}
@@ -62,13 +62,11 @@ def main() -> None:
     if not metadata_path.exists():
         raise FileNotFoundError(
             f"Metadata file was not found: {metadata_path}. "
-            "Run `python -m src.data.download_harmonyset` from the project root first "
-            "(it creates this CSV after loading Hugging Face metadata; wait until you see "
-            "'Saved initial metadata' or downloads finishing)."
+            "Run `python -m src.data.download_harmonyset` first "
         )
 
     metadata = pd.read_csv(metadata_path)
-    metadata = metadata[metadata["download_ok"] == True].copy()  # noqa: E712
+    metadata = metadata[metadata["download_ok"] == True].copy()
 
     rows = []
     for row in metadata.to_dict("records"):
@@ -90,7 +88,7 @@ def main() -> None:
 
     manifest = pd.DataFrame(rows)
     if manifest.empty:
-        raise RuntimeError("No valid videos found. Try downloading a larger subset.")
+        raise RuntimeError("No valid videos found")
 
     max_video_seconds = float(config["data"]["max_video_seconds"])
     manifest = manifest[manifest["duration"] <= max_video_seconds].reset_index(drop=True)
@@ -105,7 +103,7 @@ def main() -> None:
 
     print(f"Saved manifest to {manifest_path}")
     print(manifest["split"].value_counts().to_string())
-    print(f"Average duration: {manifest['duration'].mean():.1f} seconds")
+    print(f"Average duration: {manifest['duration'].mean():.2f} seconds")
 
 
 if __name__ == "__main__":
