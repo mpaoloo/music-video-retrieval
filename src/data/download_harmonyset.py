@@ -116,8 +116,18 @@ def main() -> None:
         print(f"Saved metadata to {metadata_path}")
         return
 
-    results = []
-    for row in tqdm(metadata.to_dict("records"), desc="Downloading videos"):
+    # Write CSV as soon as metadata is known so Colab/interrupts do not leave
+    # a missing file; refresh after each download for resumability.
+    result_df = metadata.assign(
+        download_ok=False,
+        video_path="",
+        download_error="",
+    )
+    result_df.to_csv(metadata_path, index=False)
+    print(f"Saved initial metadata to {metadata_path} (starting downloads)")
+
+    records = metadata.to_dict("records")
+    for idx, row in enumerate(tqdm(records, desc="Downloading videos")):
         pair_id = row["pair_id"]
         url = row["url"]
 
@@ -127,17 +137,10 @@ def main() -> None:
         else:
             success, video_path, error = download_one_video(url, pair_id, raw_dir)
 
-        results.append(
-            {
-                **row,
-                "download_ok": success,
-                "video_path": video_path,
-                "download_error": error,
-            }
-        )
-
-    result_df = pd.DataFrame(results)
-    result_df.to_csv(metadata_path, index=False)
+        result_df.at[idx, "download_ok"] = success
+        result_df.at[idx, "video_path"] = video_path
+        result_df.at[idx, "download_error"] = error
+        result_df.to_csv(metadata_path, index=False)
 
     ok_count = int(result_df["download_ok"].sum())
     print(f"Saved metadata to {metadata_path}")
