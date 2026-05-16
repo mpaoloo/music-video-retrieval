@@ -13,11 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def load_config(config_path: str | Path = "configs/config.yaml") -> dict[str, Any]:
-    """Load a small YAML config.
-
-    The function accepts both absolute paths and paths relative to the project
-    root. This is convenient because scripts may be launched from Colab or from
-    a local terminal.
+    """Загружаем конфигурацию
     """
     path = Path(config_path)
     if not path.is_absolute():
@@ -28,7 +24,7 @@ def load_config(config_path: str | Path = "configs/config.yaml") -> dict[str, An
 
 
 def project_path(path: str | Path) -> Path:
-    """Return an absolute path inside the project folder."""
+    """Возвращаем абсолютный путь внутри проекта"""
     path = Path(path)
     if path.is_absolute():
         return path
@@ -36,14 +32,14 @@ def project_path(path: str | Path) -> Path:
 
 
 def make_dir(path: str | Path) -> Path:
-    """Create a directory if it does not exist and return it as Path."""
+    """Создаем директорию, если она не существует"""
     path = project_path(path)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
 def set_seed(seed: int) -> None:
-    """Fix random seeds for more reproducible experiments."""
+    """Зафиксируем случайные числа для воспроизводимых экспериментов"""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
