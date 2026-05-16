@@ -3,7 +3,7 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
-# Local data and generated artefacts
+# Артефакты проекте и загруженные данные 
 data/raw/
 data/processed/
 models/
@@ -17,7 +17,7 @@ reports/*.csv
 venv/
 .matplotlib-cache/
 
-# Large ML files
+# Большие ML файлы
 *.pt
 *.pth
 *.ckpt

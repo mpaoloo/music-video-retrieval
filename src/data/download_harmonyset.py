@@ -28,8 +28,15 @@ def load_harmonyset_metadata(dataset_name: str, limit: int, seed: int) -> pd.Dat
 
     HarmonySet contains YouTube links and text annotations. The actual videos
     are not stored inside the dataset, so we download them in the next step.
+
+    The Hub repo ships plain JSON files (HarmonySet_Train.json) without a
+    dataset loading script, so ``load_dataset(dataset_name)`` fails on recent
+    ``datasets`` versions. We load the train split explicitly as JSON.
     """
-    dataset = load_dataset(dataset_name, split="train")
+    train_json_url = (
+        f"https://huggingface.co/datasets/{dataset_name}/resolve/main/HarmonySet_Train.json"
+    )
+    dataset = load_dataset("json", data_files={"train": train_json_url}, split="train")
     dataset = dataset.shuffle(seed=seed)
 
     rows = []
