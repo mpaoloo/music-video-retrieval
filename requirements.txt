@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+opencv-python
+librosa
+datasets
+yt-dlp
+pandas
+numpy
+matplotlib
+scikit-learn
+tqdm
+PyYAML

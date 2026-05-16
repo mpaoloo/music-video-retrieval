@@ -1,0 +1,33 @@
+seed: 42
+
+paths:
+  raw_dir: data/raw/videos
+  metadata_path: data/raw/harmonyset_subset.csv
+  manifest_path: data/processed/manifest.csv
+  feature_dir: data/processed/features
+  train_features_path: data/processed/features/features.csv
+  model_dir: models
+  report_dir: reports
+
+data:
+  dataset_name: Zzitang/HarmonySet
+  subset_size: 300
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  max_video_seconds: 65
+
+features:
+  frame_count: 8
+  image_size: 224
+  sample_rate: 16000
+  n_mels: 64
+  max_audio_seconds: 60
+
+training:
+  batch_size: 32
+  epochs: 15
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  embedding_dim: 128
+  temperature: 0.07

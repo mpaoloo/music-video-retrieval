@@ -1,0 +1,25 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Local data and generated artefacts
+data/raw/
+data/processed/
+models/
+reports/*.png
+reports/*.jpg
+reports/*.csv
+
+# Environment
+.env
+.venv/
+venv/
+.matplotlib-cache/
+
+# Large ML files
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
