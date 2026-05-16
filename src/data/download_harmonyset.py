@@ -12,7 +12,7 @@ from src.utils import load_config, make_dir, project_path, set_seed
 
 
 def get_model_answer(row: dict) -> str:
-    """Extract the long annotation text from a HarmonySet row."""
+    """Извлекаем аннотацию из HarmonySet, которая была получена от модели"""
     conversations = row.get("conversations", [])
     if not conversations:
         return ""
@@ -24,18 +24,11 @@ def get_model_answer(row: dict) -> str:
 
 
 def load_harmonyset_metadata(dataset_name: str, limit: int, seed: int) -> pd.DataFrame:
-    """Load a small subset of HarmonySet metadata from Hugging Face.
-
-    HarmonySet contains YouTube links and text annotations. The actual videos
-    are not stored inside the dataset, so we download them in the next step.
-
-    The Hub repo ships plain JSON files (HarmonySet_Train.json) without a
-    dataset loading script, so ``load_dataset(dataset_name)`` fails on recent
-    ``datasets`` versions. We load the train split explicitly as JSON.
-    """
+    # Загружаем данные из HarmonySet
     train_json_url = (
         f"https://huggingface.co/datasets/{dataset_name}/resolve/main/HarmonySet_Train.json"
     )
+
     dataset = load_dataset("json", data_files={"train": train_json_url}, split="train")
     dataset = dataset.shuffle(seed=seed)
 
@@ -53,18 +46,16 @@ def load_harmonyset_metadata(dataset_name: str, limit: int, seed: int) -> pd.Dat
 
 
 def find_downloaded_file(raw_dir: Path, pair_id: str) -> Path | None:
-    """Find a downloaded media file for one HarmonySet pair."""
-    candidates = list(raw_dir.glob(f"{pair_id}.*"))
+    # Находим загруженный файл
+
+    candidates = list(raw_dir.glob(f"{pair_id}.*")) 
     if not candidates:
         return None
     return candidates[0]
 
 
 def download_one_video(url: str, pair_id: str, raw_dir: Path) -> tuple[bool, str, str]:
-    """Download one YouTube video.
-
-    Returns:
-        success flag, local path, error text
+    """Загружаем одно видео с YouTube
     """
     output_template = str(raw_dir / f"{pair_id}.%(ext)s")
     options = {
@@ -104,7 +95,7 @@ def main() -> None:
     metadata_path = project_path(config["paths"]["metadata_path"])
     make_dir(metadata_path.parent)
 
-    print(f"Loading HarmonySet metadata, limit={limit}")
+    print(f"Загружаем HarmonySet метаданные, limit={limit}")
     metadata = load_harmonyset_metadata(
         dataset_name=config["data"]["dataset_name"],
         limit=limit,
@@ -113,18 +104,16 @@ def main() -> None:
 
     if args.metadata_only:
         metadata.to_csv(metadata_path, index=False)
-        print(f"Saved metadata to {metadata_path}")
+        print(f"Сохраняем метаданные в {metadata_path}")
         return
 
-    # Write CSV as soon as metadata is known so Colab/interrupts do not leave
-    # a missing file; refresh after each download for resumability.
     result_df = metadata.assign(
         download_ok=False,
         video_path="",
         download_error="",
     )
     result_df.to_csv(metadata_path, index=False)
-    print(f"Saved initial metadata to {metadata_path} (starting downloads)")
+    print(f"Сохраняем начальные метаданные в {metadata_path} (начало загрузки)")
 
     records = metadata.to_dict("records")
     for idx, row in enumerate(tqdm(records, desc="Downloading videos")):
@@ -143,10 +132,8 @@ def main() -> None:
         result_df.to_csv(metadata_path, index=False)
 
     ok_count = int(result_df["download_ok"].sum())
-    print(f"Saved metadata to {metadata_path}")
+    print(f"Сохраняем метаданные в {metadata_path}")
     print(f"Downloaded {ok_count}/{len(result_df)} videos")
-    print("If many links fail, reduce the scope and mention this as a data limitation.")
-
 
 if __name__ == "__main__":
     main()
