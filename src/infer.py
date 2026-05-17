@@ -1,12 +1,9 @@
 from __future__ import annotations
-
 import argparse
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 import torch
-
 from src.evaluate import load_trained_model
 from src.utils import load_config, project_path
 
@@ -40,12 +37,12 @@ def choose_query_row(table: pd.DataFrame, row_index: int | None, pair_id: str | 
     if pair_id is not None:
         selected = table[table["pair_id"].astype(str) == str(pair_id)]
         if selected.empty:
-            raise ValueError(f"pair_id={pair_id} was not found in the feature table.")
+            raise ValueError(f"pair_id={pair_id} не найден в таблице признаков")
         return selected.iloc[0]
 
     row_index = 0 if row_index is None else row_index
     if row_index < 0 or row_index >= len(table):
-        raise ValueError(f"row_index must be between 0 and {len(table) - 1}.")
+        raise ValueError(f"row_index должен быть между 0 и {len(table) - 1}.")
     return table.iloc[row_index]
 
 
@@ -54,8 +51,8 @@ def main() -> None:
     parser.add_argument("--config", default="configs/config.yaml")
     parser.add_argument("--model-path", default=None)
     parser.add_argument("--split", default="test", choices=["train", "val", "test", "all"])
-    parser.add_argument("--row-index", type=int, default=0)
-    parser.add_argument("--video-id", type=int, default=None, help="Alias for --row-index, kept for README simplicity.")
+    parser.add_argument("--row-index", type=int, default=0) # индекс строки с видео в таблице если не задано video-id или pair-id)
+    parser.add_argument("--video-id", type=int, default=None)
     parser.add_argument("--pair-id", default=None)
     parser.add_argument("--top-k", type=int, default=5)
     args = parser.parse_args()
@@ -69,7 +66,7 @@ def main() -> None:
         table = table[table["split"] == args.split].reset_index(drop=True)
 
     if table.empty:
-        raise RuntimeError("Selected split is empty.")
+        raise RuntimeError("Выбранный сплит пуст")
 
     row_index = args.video_id if args.video_id is not None else args.row_index
     query = choose_query_row(table, row_index=row_index, pair_id=args.pair_id)
@@ -82,21 +79,21 @@ def main() -> None:
     scores = audio_embeddings @ query_embedding
     order = np.argsort(-scores)[: args.top_k]
 
-    print("Query video")
+    print("Запрошенное видео")
     print(f"pair_id: {query['pair_id']}")
     print(f"path: {query['video_path']}")
     print()
-    print(f"Top-{args.top_k} recommended audio tracks")
+    print(f"Топ-{args.top_k} рекомендованных аудио")
 
     for rank, index in enumerate(order, start=1):
         row = table.iloc[index]
-        marker = " <-- correct pair" if str(row["pair_id"]) == str(query["pair_id"]) else ""
+        marker = "верный pair_id" if str(row["pair_id"]) == str(query["pair_id"]) else ""
         print(
             f"{rank}. pair_id={row['pair_id']} "
             f"score={scores[index]:.3f}{marker}"
         )
         print(f"   video/audio source: {row['video_path']}")
-        print(f"   annotation: {short_text(row.get('annotation', ''))}")
+        print(f"   анотация: {short_text(row.get('annotation', ''))}")
 
 
 if __name__ == "__main__":
