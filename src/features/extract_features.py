@@ -1,10 +1,8 @@
 from __future__ import annotations
-
 import argparse
 import subprocess
 import tempfile
 from pathlib import Path
-
 import cv2
 import librosa
 import numpy as np
@@ -13,12 +11,11 @@ import torch
 from PIL import Image
 from torchvision.models import ResNet18_Weights, resnet18
 from tqdm import tqdm
-
 from src.utils import load_config, make_dir, project_path, set_seed
 
 
 def build_frame_model(device: torch.device) -> tuple[torch.nn.Module, object]:
-    """Create a pretrained ResNet18 that returns a 512-dimensional vector."""
+    """Создаем pretrained ResNet18, который возвращает 512-мерный вектор"""
     weights = ResNet18_Weights.DEFAULT
     model = resnet18(weights=weights)
     model.fc = torch.nn.Identity()
@@ -28,7 +25,7 @@ def build_frame_model(device: torch.device) -> tuple[torch.nn.Module, object]:
 
 
 def read_sampled_frames(video_path: str | Path, frame_count: int) -> list[Image.Image]:
-    """Read a few evenly spaced frames from a video."""
+    """ЧИтаем несколько равномерно распределенных кадров из видео"""
     cap = cv2.VideoCapture(str(video_path))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     if total_frames <= 0:
@@ -59,10 +56,11 @@ def extract_video_feature(
     device: torch.device,
     frame_count: int,
 ) -> np.ndarray:
-    """Extract one averaged visual vector for a video."""
+    """Извлекаем один усредненный визуальный вектор для видео"""
+
     frames = read_sampled_frames(video_path, frame_count)
     if not frames:
-        raise RuntimeError(f"Could not read frames from {video_path}")
+        raise RuntimeError(f"Не удалось прочитать кадры из {video_path}")
 
     batch = torch.stack([preprocess(frame) for frame in frames]).to(device)
     features = model(batch)
@@ -71,7 +69,7 @@ def extract_video_feature(
 
 
 def extract_audio_to_wav(video_path: str | Path, wav_path: str | Path, sample_rate: int) -> None:
-    """Use ffmpeg to extract mono wav audio from a video file."""
+    """Извлекаем моно wav аудио из видео файла"""
     command = [
         "ffmpeg",
         "-y",
@@ -95,11 +93,8 @@ def extract_audio_feature(
     n_mels: int,
     max_audio_seconds: int,
 ) -> np.ndarray:
-    """Extract a simple audio vector based on log-mel statistics.
-
-    This is deliberately simple: for every mel band we take mean and standard
-    deviation over time. It gives a compact description of tempo/energy/timbre
-    without adding heavy audio models.
+    """Извлекаем простой аудио вектор на основе mel статистики
+    Для каждой mel-полосы мы берем среднее и стандартное отклонение по времени
     """
     with tempfile.TemporaryDirectory() as tmp_dir:
         wav_path = Path(tmp_dir) / "audio.wav"
@@ -113,7 +108,7 @@ def extract_audio_feature(
         )
 
     if len(audio) == 0:
-        raise RuntimeError(f"No audio was extracted from {video_path}")
+        raise RuntimeError(f"Аудио не было извлечено из {video_path}")
 
     mel = librosa.feature.melspectrogram(
         y=audio,
@@ -150,11 +145,11 @@ def main() -> None:
         manifest = manifest.head(args.limit).copy()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print(f"Используем девайс: {device}")
     frame_model, preprocess = build_frame_model(device)
 
     rows = []
-    for row in tqdm(manifest.to_dict("records"), desc="Extracting features"):
+    for row in tqdm(manifest.to_dict("records"), desc="Извлекаем признаки"):
         pair_id = str(row["pair_id"])
         video_path = row["video_path"]
         video_out = video_feature_dir / f"{pair_id}.npy"
@@ -188,7 +183,7 @@ def main() -> None:
                 }
             )
         except Exception as error:
-            print(f"Skipped pair_id={pair_id}: {error}")
+            print(f"Пропущен pair_id={pair_id}: {error}")
 
     features = pd.DataFrame(rows)
     features.to_csv(features_csv_path, index=False)

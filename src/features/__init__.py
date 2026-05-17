@@ -1,1 +1,1 @@
-"""Feature extraction scripts."""
+"""Feature extraction scripts"""

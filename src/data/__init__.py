@@ -1,1 +1,1 @@
-"""Data loading and manifest scripts."""
+"""Data loading and manifest scripts"""
