@@ -17,7 +17,7 @@ def embed_split(
     table: pd.DataFrame,
     device: torch.device,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Encode all video and audio features from one split."""
+    """Закодируем все видео и аудио признаки из одного датасета"""
     model.eval()
     video_embeddings = []
     audio_embeddings = []
@@ -41,10 +41,8 @@ def compute_retrieval_metrics(
     audio_embeddings: np.ndarray,
     top_k: int = 5,
 ) -> dict[str, float]:
-    """Compute Hit@1, Hit@K and MRR.
-
-    Rows are videos, columns are candidate audio tracks. The correct pair is on
-    the diagonal because we keep video and audio in the same table order.
+    """Вычисляем метрики Hit@1, Hit@K и MRR
+    Строки - это видео, столбцы - это кандидаты аудио треков
     """
     scores = video_embeddings @ audio_embeddings.T
     ranks = []
@@ -70,7 +68,7 @@ def compute_retrieval_metrics(
 
 
 def random_baseline(num_candidates: int, top_k: int = 5) -> dict[str, float]:
-    """Expected random baseline for one correct item among N candidates."""
+    """Ожидаемый случайный baseline для одного правильного элемента среди N кандидатов"""
     requested_top_k = top_k
     effective_top_k = min(top_k, num_candidates)
     harmonic = sum(1.0 / rank for rank in range(1, num_candidates + 1))
@@ -121,7 +119,7 @@ def main() -> None:
     parser.add_argument("--config", default="configs/config.yaml")
     parser.add_argument("--split", default="test", choices=["train", "val", "test"])
     parser.add_argument("--model-path", default=None)
-    parser.add_argument("--no-plots", action="store_true", help="Skip png plots. Useful for quick technical checks.")
+    parser.add_argument("--no-plots", action="store_true", help="Пропустить графики, полезно для быстрой проверки")
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -134,7 +132,7 @@ def main() -> None:
     features = pd.read_csv(features_path)
     table = features[features["split"] == args.split].reset_index(drop=True)
     if len(table) < 2:
-        raise RuntimeError(f"Split '{args.split}' must contain at least 2 examples.")
+        raise RuntimeError(f"'{args.split}'должен содержать минимум 2 объекта")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, _ = load_trained_model(model_path, device)
