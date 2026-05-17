@@ -114,8 +114,6 @@ def main() -> None:
         video_dim=video_dim,
         audio_dim=audio_dim,
         embedding_dim=int(config["training"]["embedding_dim"]),
-        hidden_dim=int(config["training"]["tower_hidden_dim"]),
-        dropout=float(config["training"]["tower_dropout"]),
     ).to(device)
 
     optimizer = torch.optim.AdamW(
@@ -170,8 +168,6 @@ def main() -> None:
                     "video_dim": video_dim,
                     "audio_dim": audio_dim,
                     "embedding_dim": int(config["training"]["embedding_dim"]),
-                    "tower_hidden_dim": int(config["training"]["tower_hidden_dim"]),
-                    "tower_dropout": float(config["training"]["tower_dropout"]),
                     "temperature": temperature,
                     "config": config,
                 },
