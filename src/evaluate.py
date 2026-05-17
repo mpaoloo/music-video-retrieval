@@ -82,10 +82,20 @@ def random_baseline(num_candidates: int, top_k: int = 5) -> dict[str, float]:
 
 def load_trained_model(model_path: str | Path, device: torch.device) -> tuple[TwoTowerModel, dict]:
     checkpoint = torch.load(model_path, map_location=device)
+    cfg = checkpoint.get("config") or {}
+    training_cfg = cfg.get("training") or {}
+    hidden_dim = int(
+        checkpoint.get("tower_hidden_dim") or training_cfg.get("tower_hidden_dim", 512)
+    )
+    dropout = float(
+        checkpoint.get("tower_dropout") or training_cfg.get("tower_dropout", 0.25)
+    )
     model = TwoTowerModel(
         video_dim=int(checkpoint["video_dim"]),
         audio_dim=int(checkpoint["audio_dim"]),
         embedding_dim=int(checkpoint["embedding_dim"]),
+        hidden_dim=hidden_dim,
+        dropout=dropout,
     ).to(device)
     model.load_state_dict(checkpoint["model_state"])
     model.eval()

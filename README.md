@@ -26,6 +26,7 @@
 - `frame_count: 16`
 - `n_mels: 96`
 - `embedding_dim: 256`
+- `tower_hidden_dim: 512` и `tower_dropout: 0.25` — двухслойные MLP-башни с LayerNorm и GELU
 - `batch_size: 48`
 - `epochs: 30`
 - `learning_rate: 0.0005`
