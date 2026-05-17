@@ -13,11 +13,13 @@ class TwoTowerModel(nn.Module):
         self.video_tower = nn.Sequential(
             nn.Linear(video_dim, embedding_dim),
             nn.ReLU(inplace=True),
+            nn.Dropout(0.15),
             nn.Linear(embedding_dim, embedding_dim),
         )
         self.audio_tower = nn.Sequential(
             nn.Linear(audio_dim, embedding_dim),
             nn.ReLU(inplace=True),
+            nn.Dropout(0.15),
             nn.Linear(embedding_dim, embedding_dim),
         )
 
