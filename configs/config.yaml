@@ -28,8 +28,6 @@ training:
   batch_size: 48
   epochs: 30
   learning_rate: 0.0005
-  weight_decay: 0.0003
+  weight_decay: 0.0001
   embedding_dim: 256
-  tower_hidden_dim: 512
-  tower_dropout: 0.25
   temperature: 0.07

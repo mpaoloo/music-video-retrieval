@@ -5,35 +5,23 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-def _make_tower(input_dim: int, hidden_dim: int, embedding_dim: int, dropout: float) -> nn.Sequential:
-    """Две полносвязных ступени с LayerNorm и GELU между входом и эмбеддингом."""
-    return nn.Sequential(
-        nn.Linear(input_dim, hidden_dim),
-        nn.LayerNorm(hidden_dim),
-        nn.GELU(),
-        nn.Dropout(dropout),
-        nn.Linear(hidden_dim, hidden_dim),
-        nn.LayerNorm(hidden_dim),
-        nn.GELU(),
-        nn.Dropout(dropout),
-        nn.Linear(hidden_dim, embedding_dim),
-    )
-
-
 class TwoTowerModel(nn.Module):
-    """Две башни видео / аудио + L2-нормализация для contrastive retrieval"""
+    """Две линейные башни + L2-нормализация для contrastive video–audio retrieval."""
 
-    def __init__(
-        self,
-        video_dim: int,
-        audio_dim: int,
-        embedding_dim: int,
-        hidden_dim: int = 512,
-        dropout: float = 0.25,
-    ) -> None:
+    def __init__(self, video_dim: int, audio_dim: int, embedding_dim: int) -> None:
         super().__init__()
-        self.video_tower = _make_tower(video_dim, hidden_dim, embedding_dim, dropout)
-        self.audio_tower = _make_tower(audio_dim, hidden_dim, embedding_dim, dropout)
+        self.video_tower = nn.Sequential(
+            nn.Linear(video_dim, embedding_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.15),
+            nn.Linear(embedding_dim, embedding_dim),
+        )
+        self.audio_tower = nn.Sequential(
+            nn.Linear(audio_dim, embedding_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.15),
+            nn.Linear(embedding_dim, embedding_dim),
+        )
 
     def encode_video(self, video_features: torch.Tensor) -> torch.Tensor:
         z = self.video_tower(video_features)
@@ -54,6 +42,6 @@ def similarity_matrix(
     audio_embeddings: torch.Tensor,
     temperature: float,
 ) -> torch.Tensor:
-    """Измеряем сходство между видео и аудио эмбеддингами косинусным расстоянием"""
+    """Измеряем сходство между видео и аудио эмбеддингами косинусным расстоянием."""
     logits = video_embeddings @ audio_embeddings.T
     return logits / temperature
