@@ -15,7 +15,7 @@ from src.utils import load_config, make_dir, project_path, set_seed
 
 
 class FeatureDataset(Dataset):
-    """Dataset that reads already extracted .npy features."""
+    """Датсет, который читает уже извлеченные .npy признаки"""
 
     def __init__(self, table: pd.DataFrame) -> None:
         self.table = table.reset_index(drop=True)
@@ -31,7 +31,7 @@ class FeatureDataset(Dataset):
 
 
 def infer_feature_dims(table: pd.DataFrame) -> tuple[int, int]:
-    """Read one pair of features to understand input dimensions."""
+    """Читаем одну пару признаков, чтобы понять размеры входных данных"""
     first = table.iloc[0]
     video_dim = int(np.load(first["video_feature_path"]).shape[0])
     audio_dim = int(np.load(first["audio_feature_path"]).shape[0])
@@ -56,8 +56,7 @@ def train_one_epoch(
         logits = similarity_matrix(video_embeddings, audio_embeddings, temperature)
         labels = torch.arange(logits.shape[0], device=device)
 
-        # Two directions make training a bit more stable:
-        # video -> audio and audio -> video.
+        # две башни делают обучение более стабильным: видео -> аудио и аудио -> видео
         loss_video = torch.nn.functional.cross_entropy(logits, labels)
         loss_audio = torch.nn.functional.cross_entropy(logits.T, labels)
         loss = (loss_video + loss_audio) / 2
@@ -88,7 +87,7 @@ def save_loss_plot(history: pd.DataFrame, output_path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/config.yaml")
-    parser.add_argument("--no-plots", action="store_true", help="Skip png plots. Useful for quick technical checks.")
+    parser.add_argument("--no-plots", action="store_true", help="Пропустить графики, полезно для быстрой проверки")
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -103,9 +102,9 @@ def main() -> None:
     val_table = features[features["split"] == "val"].reset_index(drop=True)
 
     if len(train_table) < 2:
-        raise RuntimeError("Need at least 2 training examples for contrastive learning.")
+        raise RuntimeError("Нужно минимум 2 примера для contrastive learning")
     if len(val_table) < 2:
-        print("Validation split is too small, using train split for validation metrics.")
+        print("Валидационный датасет слишком маленький, используем трейнвый датасет для оценки")
         val_table = train_table.copy()
 
     video_dim, audio_dim = infer_feature_dims(train_table)
@@ -181,8 +180,8 @@ def main() -> None:
     if not args.no_plots:
         save_loss_plot(history, report_dir / "training_dynamics.png")
 
-    print(f"Saved best model to {best_path}")
-    print(f"Saved training history to {history_path}")
+    print(f"Сохраняем лучшую модель в {best_path}")
+    print(f"Сохраняем историю обучения в {history_path}")
 
 
 if __name__ == "__main__":

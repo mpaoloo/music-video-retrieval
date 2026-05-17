@@ -42,6 +42,6 @@ def similarity_matrix(
     audio_embeddings: torch.Tensor,
     temperature: float,
 ) -> torch.Tensor:
-    """Scaled dot-product similarity (B, B) for a batch of aligned pairs."""
+    """Измеряем сходство между видео и аудио эмбеддингами косинусным расстоянием"""
     logits = video_embeddings @ audio_embeddings.T
     return logits / temperature
