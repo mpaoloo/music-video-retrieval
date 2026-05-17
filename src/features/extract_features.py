@@ -9,15 +9,15 @@ import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
-from torchvision.models import ResNet18_Weights, resnet18
+from torchvision.models import ResNet50_Weights, resnet50
 from tqdm import tqdm
 from src.utils import load_config, make_dir, project_path, set_seed
 
 
 def build_frame_model(device: torch.device) -> tuple[torch.nn.Module, object]:
-    """Создаем pretrained ResNet18, который возвращает 512-мерный вектор"""
-    weights = ResNet18_Weights.DEFAULT
-    model = resnet18(weights=weights)
+    """Предобученный ResNet50 без классификатора: вектор признаков 2048"""
+    weights = ResNet50_Weights.DEFAULT
+    model = resnet50(weights=weights)
     model.fc = torch.nn.Identity()
     model.eval()
     model.to(device)

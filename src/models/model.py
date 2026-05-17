@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 
 class TwoTowerModel(nn.Module):
-    """Two linear towers + L2 normalization for contrastive video–audio retrieval."""
+    """Две башни + L2 нормализация для contrastive video audio retrieval"""
 
     def __init__(self, video_dim: int, audio_dim: int, embedding_dim: int) -> None:
         super().__init__()
