@@ -1,0 +1,11 @@
+{
+  "metric": "MRR",
+  "comparison": "ast_all minus mel_all",
+  "n_queries": 49,
+  "mean_difference": 0.07564465278001277,
+  "paired_query_bootstrap_95": [
+    0.0020862228594062194,
+    0.15204788726975735
+  ],
+  "note": "Fixed trained seeds; does not include uncertainty from collecting a new dataset."
+}

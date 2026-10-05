@@ -1,0 +1,5 @@
+{
+  "experiment": "ast_all",
+  "seed": 42,
+  "rule": "highest mean validation MRR across fixed seeds; demo uses first seed"
+}

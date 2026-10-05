@@ -1,0 +1,11 @@
+{
+  "requested": 1200,
+  "downloaded": 380,
+  "unique_files": 380,
+  "split_counts": {
+    "train": 272,
+    "val": 55,
+    "test": 53
+  },
+  "dataset_revision": "567029b44ddae1210a6c788a909c132595303a22"
+}

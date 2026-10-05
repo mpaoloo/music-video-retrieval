@@ -11,7 +11,6 @@ data/processed/
 /models/
 reports/*.png
 reports/*.jpg
-reports/*.csv
 
 # Environment
 .env
@@ -25,3 +24,9 @@ venv/
 *.ckpt
 *.npy
 *.npz
+
+# Результаты завершённого эксперимента включены для воспроизведения
+*.zip
+!data/revision/**/*.npz
+!runs/revision/**/*.pt
+!runs/revision/**/*.npy

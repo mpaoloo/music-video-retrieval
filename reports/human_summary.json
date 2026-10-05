@@ -1,0 +1,18 @@
+{
+  "scored_pairs": 65,
+  "scored_queries": 7,
+  "complete_queries": [
+    "3N4ztMIVYSA",
+    "MuRlAg2jG2g",
+    "UvDYnk4I9bg",
+    "_BqZgHJI3BU",
+    "bA5ejXkMSLg",
+    "iRtsyXMGNQo",
+    "mLve0fZDFds"
+  ],
+  "complete_pairs": 65,
+  "top1_mean": 0.5714285714285714,
+  "top1_good_count": 1,
+  "top1_acceptable_count": 3,
+  "note": "Single author; ordinal scores summarized descriptively. Missing scores remain missing."
+}
